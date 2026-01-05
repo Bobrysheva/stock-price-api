@@ -20,6 +20,7 @@ import java.util.Set;
 @AllArgsConstructor
 @ToString(exclude = {"loadedDatas", "refreshTokens"})
 @Table(name = "users")
+@Builder
 public class User {
 
     @Id

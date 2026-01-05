@@ -75,3 +75,5 @@ src/main/resources/application-*.yml
 
 # Application
 HELP.md
+
+token

@@ -1,0 +1,207 @@
+openapi: 3.0.3
+info:
+  title: Stock Price API
+  version: 1.0.0
+  description: REST API for retrieving and storing historical stock price data with user authentication
+
+servers:
+  - url: http://localhost:8081
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    RegisterRequest:
+      type: object
+      required:
+        - login
+        - email
+        - password
+      properties:
+        login:
+          type: string
+        email:
+          type: string
+          format: email
+          x-jakarta-validation: "@jakarta.validation.constraints.Email"
+        password:
+          type: string
+          format: password
+
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          x-jakarta-validation: "@jakarta.validation.constraints.Email"
+        password:
+          type: string
+          format: password
+
+    AuthResponse:
+      type: object
+      properties:
+        token:
+          type: string
+          description: JWT token for accessing protected resources
+
+    SaveRequest:
+      type: object
+      required:
+        - ticker
+        - start
+        - end
+      properties:
+        ticker:
+          type: string
+        start:
+          type: string
+          format: date
+        end:
+          type: string
+          format: date
+
+    StockPrice:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        open:
+          type: number
+        close:
+          type: number
+        high:
+          type: number
+        low:
+          type: number
+
+    SavedStockHistory:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        ticker:
+          type: string
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/StockPrice'
+
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+
+paths:
+
+  /api/user/register:
+    post:
+      summary: New user registration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        "201":
+          description: User successfully registered
+        "400":
+          description: User already exists or there is a validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/user/login:
+    post:
+      summary: Registered user login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        "200":
+          description: Successful login, returns JWT token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        "401":
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/user/saved:
+    get:
+      summary: Retrieving saved user data by ticker
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: ticker
+          required: true
+          schema:
+            type: string
+          description: Stock ticker
+      responses:
+        "200":
+          description: Saved promotion data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SavedStockHistory'
+        "400":
+          description: Incorrect ticker
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "401":
+          description: Unauthorized access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/user/save:
+    post:
+      summary: Saving a new request for historical stock data
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SaveRequest'
+      responses:
+        "201":
+          description: Data saved successfully
+        "400":
+          description: Validation error (for example start>end or unknown ticker)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'

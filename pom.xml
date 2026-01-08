@@ -24,6 +24,12 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>5.10.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>tools.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
             <version>3.0.3</version>
@@ -34,9 +40,9 @@
             <artifactId>log4j-core</artifactId>
             <version>2.25.2</version>
         </dependency>
-       <dependency>
-         <groupId>org.springframework.data</groupId>
-        <artifactId>spring-data-commons</artifactId>
+        <dependency>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-commons</artifactId>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -65,13 +71,25 @@
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa</artifactId>
-        </dependency>
-        <dependency>
             <groupId>io.swagger.core.v3</groupId>
             <artifactId>swagger-annotations-jakarta</artifactId>
             <version>2.2.38</version>
+        </dependency>
+        <dependency>
+            <groupId>io.swagger.core.v3</groupId>
+            <artifactId>swagger-core</artifactId>
+            <version>2.2.18</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>2.2.0</version>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <version>6.0.0</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -90,6 +108,12 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.openapitools/jackson-databind-nullable -->
+        <dependency>
+            <groupId>org.openapitools</groupId>
+            <artifactId>jackson-databind-nullable</artifactId>
+            <version>0.2.5</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-api -->
         <dependency>
@@ -118,6 +142,104 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+
+<!--            <plugin>-->
+<!--                <groupId>org.openapitools</groupId>-->
+<!--                <artifactId>openapi-generator-maven-plugin</artifactId>-->
+<!--                <version>7.17.0</version>-->
+
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <id>generate-spring-api</id>-->
+<!--                        <goals>-->
+<!--                            <goal>generate</goal>-->
+<!--                        </goals>-->
+
+<!--                        <configuration>-->
+<!--                            <inputSpec>-->
+<!--                                ${project.basedir}/src/main/java/com/bobrysheva/stock_price_api/openapi.yaml-->
+<!--                            </inputSpec>-->
+
+<!--                            <generatorName>spring</generatorName>-->
+<!--                            <library>spring-boot</library>-->
+
+<!--                            <apiPackage>com.bobrysheva.stock_price_api.api</apiPackage>-->
+<!--                            <modelPackage>com.bobrysheva.stock_price_api.model</modelPackage>-->
+<!--                            <invokerPackage>com.bobrysheva.stock_price_api.invoker</invokerPackage>-->
+
+<!--                            <output>${project.build.directory}/generated-sources/openapi</output>-->
+
+
+<!--                            <additionalProperties>-->
+<!--                                <generatePom>false</generatePom>-->
+<!--                                <useSpringBoot3>true</useSpringBoot3>-->
+<!--                                <useJakartaEe>true</useJakartaEe>-->
+<!--                                <jakartaBeanValidation>true</jakartaBeanValidation>-->
+<!--                                <useBeanValidation>true</useBeanValidation>-->
+<!--                                <interfaceOnly>false</interfaceOnly>-->
+<!--                                <dateLibrary>java8</dateLibrary>-->
+<!--                                <hideGenerationTimestamp>true</hideGenerationTimestamp>-->
+<!--                            </additionalProperties>-->
+<!--                            <typeMappings>-->
+<!--                                <typeMapping>javax.validation=jakarta.validation</typeMapping>-->
+<!--                                <typeMapping>javax.annotation=jakarta.annotation</typeMapping>-->
+<!--                        </typeMappings>-->
+<!--                            <importMappings>-->
+<!--                                <importMapping>javax.validation.Valid=jakarta.validation.Valid</importMapping>-->
+<!--                                <importMapping>javax.validation.constraints.NotNull=jakarta.validation.constraints.NotNull</importMapping>-->
+<!--                                <importMapping>javax.annotation.Generated=jakarta.annotation.Generated</importMapping>-->
+<!--                                <importMapping>javax.validation.constraints.Email=jakarta.validation.constraints.Email</importMapping>-->
+<!--                                <importMapping>javax.validation.constraints.Size=jakarta.validation.constraints.Size</importMapping>-->
+<!--                                <importMapping>javax.validation.constraints.Pattern=jakarta.validation.constraints.Pattern</importMapping>-->
+<!--                                <generateApiTests>false</generateApiTests>-->
+<!--                                <generateModelTests>false</generateModelTests>-->
+<!--                            </importMappings>-->
+<!--                            <templateDirectory>${project.basedir}/openapi-templates</templateDirectory>-->
+<!--                        </configuration>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+<!--            </plugin>-->
+            <plugin>
+                <groupId>org.openapitools</groupId>
+                <artifactId>openapi-generator-maven-plugin</artifactId>
+                <version>7.17.0</version>
+                <executions>
+                    <execution>
+                        <id>generate-spring-api</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec> ${project.basedir}/src/main/java/com/bobrysheva/static/openapi.yaml </inputSpec>
+                            <generatorName>spring</generatorName>
+                            <library>spring-boot</library>
+                            <apiPackage>com.bobrysheva.api</apiPackage>
+                            <modelPackage>com.bobrysheva.model</modelPackage>
+                            <output>${project.build.directory}/generated-sources/openapi</output>
+                            <additionalProperties>
+                                <generatePom>false</generatePom>
+                                <useSpringBoot3>true</useSpringBoot3>
+                                <useJakartaEe>true</useJakartaEe>
+                                <jakartaBeanValidation>true</jakartaBeanValidation>
+                                <useBeanValidation>true</useBeanValidation>
+                                <interfaceOnly>false</interfaceOnly>
+                                <dateLibrary>java8</dateLibrary>
+                                <hideGenerationTimestamp>true</hideGenerationTimestamp>
+                            </additionalProperties>
+                            <templateDirectory>${project.basedir}/openapi-templates</templateDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.10.1</version>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                </configuration>
             </plugin>
         </plugins>
     </build>

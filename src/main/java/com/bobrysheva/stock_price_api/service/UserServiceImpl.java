@@ -2,17 +2,17 @@ package com.bobrysheva.stock_price_api.service;
 
 import com.bobrysheva.stock_price_api.dto.JwtAuthenticationDto;
 import com.bobrysheva.stock_price_api.dto.RefreshTokenDto;
-import com.bobrysheva.stock_price_api.dto.RegisterRequest;
 import com.bobrysheva.stock_price_api.dto.UserCredentialsDto;
 import com.bobrysheva.stock_price_api.entity.User;
 import com.bobrysheva.stock_price_api.exceptionsHandler.UserAlreadyExistsException;
+import com.bobrysheva.stock_price_api.mapper.UserMapper;
 import com.bobrysheva.stock_price_api.repository.UserRepository;
 import com.bobrysheva.stock_price_api.security.jwt.JwtService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.openapitools.model.RegisterRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,29 +27,26 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
+    private final UserMapper userMapper;
 
     @Transactional
     @Override
     public ResponseEntity<?> createUser(RegisterRequest registerRequest) {
         log.info("Creating new User");
-        Optional<User> findUserByEmail = userRepository.findUserByEmail(registerRequest.email());
+        Optional<User> findUserByEmail = userRepository.findUserByEmail(registerRequest.getEmail());
         if (findUserByEmail.isEmpty()) {
-            User user = new User();
-            user.setLogin(registerRequest.login());
-            user.setEmail(registerRequest.email());
-            user.setPassword(passwordEncoder.encode(registerRequest.password()));
-            User savedUser = userRepository.save(user);
+            User savedUser = userRepository.save(userMapper.mapToUser(registerRequest));
             log.info("User with ID: {} is created", savedUser.getId());
             return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
         }
         log.error("Failure to create user with duplicate email address");
-        throw new UserAlreadyExistsException("User with email " + registerRequest.email() + " already exists");
+        throw new UserAlreadyExistsException("User with email " + registerRequest.getEmail() + " already exists");
     }
 
     @Override
     public JwtAuthenticationDto singIn(UserCredentialsDto userCredentialsDto) throws AuthenticationException {
         User user = findByCredentials(userCredentialsDto);
-                return jwtService.generateAuthToken(user.getEmail());
+        return jwtService.generateAuthToken(user.getEmail());
     }
 
     @Override
@@ -62,7 +59,7 @@ public class UserServiceImpl implements UserService {
         throw new AuthenticationException("Invalid refresh token");
     }
 
-    private User findByCredentials (UserCredentialsDto userCredentialsDto) throws AuthenticationException {
+    private User findByCredentials(UserCredentialsDto userCredentialsDto) throws AuthenticationException {
         Optional<User> optionalUser = userRepository.findUserByEmail(userCredentialsDto.getEmail());
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
@@ -70,10 +67,10 @@ public class UserServiceImpl implements UserService {
                 return user;
             }
         }
-        throw new AuthenticationException ("Email or password is not correct");
+        throw new AuthenticationException("Email or password is not correct");
     }
 
-    private User findByEmail (String email) throws Exception {
+    private User findByEmail(String email) throws Exception {
         return userRepository.findUserByEmail(email).orElseThrow(() -> new Exception(String.format("User with email %s not found", email)));
     }
- }
+}

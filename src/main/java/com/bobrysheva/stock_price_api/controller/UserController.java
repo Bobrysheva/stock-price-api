@@ -2,11 +2,11 @@ package com.bobrysheva.stock_price_api.controller;
 
 import com.bobrysheva.stock_price_api.dto.JwtAuthenticationDto;
 import com.bobrysheva.stock_price_api.dto.RefreshTokenDto;
-import com.bobrysheva.stock_price_api.dto.RegisterRequest;
 import com.bobrysheva.stock_price_api.dto.UserCredentialsDto;
 import com.bobrysheva.stock_price_api.service.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.openapitools.model.RegisterRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

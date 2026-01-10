@@ -1,6 +1,5 @@
 package com.bobrysheva.stock_price_api.service;
 
-import com.bobrysheva.stock_price_api.dto.RegisterRequest;
 import com.bobrysheva.stock_price_api.entity.User;
 import com.bobrysheva.stock_price_api.exceptionsHandler.UserAlreadyExistsException;
 import com.bobrysheva.stock_price_api.repository.UserRepository;

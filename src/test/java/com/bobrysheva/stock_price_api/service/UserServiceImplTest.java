@@ -11,6 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.openapitools.model.RegisterRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -64,7 +65,7 @@ class UserServiceImplTest {
     @DisplayName("New user suссessful creation")
     public void createUser_thatNotExistsYet() {
 
-        when(userRepository.findUserByEmail(validRegisterRequest.email())).thenReturn(Optional.empty());
+        when(userRepository.findUserByEmail(validRegisterRequest.getEmail())).thenReturn(Optional.empty());
 
         when(userRepository.save(any(User.class))).thenReturn(savedUser);
 
@@ -82,7 +83,7 @@ class UserServiceImplTest {
         assertEquals(savedUser.getLogin(), returnedUser.getLogin());
         assertEquals(savedUser.getEmail(), returnedUser.getEmail());
 
-        verify(userRepository, times(1)).findUserByEmail(validRegisterRequest.email());
+        verify(userRepository, times(1)).findUserByEmail(validRegisterRequest.getEmail());
         verify(userRepository, times(1)).save(any(User.class));
         verifyNoMoreInteractions(userRepository);
     }
@@ -90,11 +91,11 @@ class UserServiceImplTest {
     @Test
     @DisplayName("Unsuccessful creation of a user with a registered email - should throw an exception")
     public void createUser_WhenEmailAlreadyExist_ShouldThrowException() {
-        when(userRepository.findUserByEmail(validRegisterRequest.email())).thenReturn(Optional.of(existingUser));
+        when(userRepository.findUserByEmail(validRegisterRequest.getEmail())).thenReturn(Optional.of(existingUser));
 
         UserAlreadyExistsException exception = assertThrows(UserAlreadyExistsException.class, () -> userServiceImpl.createUser(validRegisterRequest));
 
-        assertEquals("User with email " + validRegisterRequest.email() + " already exists", exception.getMessage());
+        assertEquals("User with email " + validRegisterRequest.getEmail() + " already exists", exception.getMessage());
 
     }
 }

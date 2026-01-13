@@ -2,9 +2,9 @@ package com.bobrysheva.stock_price_api.service;
 
 import com.bobrysheva.stock_price_api.entity.User;
 import com.bobrysheva.stock_price_api.exceptionsHandler.UserAlreadyExistsException;
+import com.bobrysheva.stock_price_api.mapper.UserMapper;
 import com.bobrysheva.stock_price_api.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,33 +18,33 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-@Disabled
 @ExtendWith(MockitoExtension.class)
 class UserServiceImplTest {
 
     @Mock
     private UserRepository userRepository;
+
     @InjectMocks
     private UserServiceImpl userServiceImpl;
 
-    private User existingUser;
-    private PasswordEncoder passwordEncoder;
+    @Mock
+    private UserMapper userMapper;
     private RegisterRequest validRegisterRequest;
     private User savedUser;
+    private User existingUser;
 
     @BeforeEach
     public void setUp() {
 
-        validRegisterRequest = new RegisterRequest(
-                "testuser",
-                "test@example.com",
-                "password123"
-        );
+        validRegisterRequest = RegisterRequest.builder()
+                .login("testuser")
+                .email("test@example.com")
+                .password("password123")
+                .build();
 
         existingUser = User.builder()
                 .id(1L)
@@ -66,22 +66,17 @@ class UserServiceImplTest {
     public void createUser_thatNotExistsYet() {
 
         when(userRepository.findUserByEmail(validRegisterRequest.getEmail())).thenReturn(Optional.empty());
-
+        when(userMapper.mapToUser(any())).thenReturn(new User());
         when(userRepository.save(any(User.class))).thenReturn(savedUser);
 
-        ResponseEntity<?> response = userServiceImpl.createUser(validRegisterRequest);
+        User result = userServiceImpl.createUser(validRegisterRequest);
 
-        assertNotNull(response);
+        assertEquals(savedUser.getId(), result.getId());
 
-        assertEquals(HttpStatus.CREATED, response.getStatusCode());
-
-        assertTrue(response.getBody() instanceof User);
-
-        User returnedUser = (User) response.getBody();
-        assertNotNull(returnedUser);
-        assertEquals(savedUser.getId(), returnedUser.getId());
-        assertEquals(savedUser.getLogin(), returnedUser.getLogin());
-        assertEquals(savedUser.getEmail(), returnedUser.getEmail());
+        assertNotNull(result);
+        assertEquals(savedUser.getId(), result.getId());
+        assertEquals(savedUser.getLogin(), result.getLogin());
+        assertEquals(savedUser.getEmail(), result.getEmail());
 
         verify(userRepository, times(1)).findUserByEmail(validRegisterRequest.getEmail());
         verify(userRepository, times(1)).save(any(User.class));

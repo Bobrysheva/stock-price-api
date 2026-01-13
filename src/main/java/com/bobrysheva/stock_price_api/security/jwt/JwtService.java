@@ -1,11 +1,11 @@
 package com.bobrysheva.stock_price_api.security.jwt;
 
-import com.bobrysheva.stock_price_api.dto.JwtAuthenticationDto;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.openapitools.model.AuthResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -23,18 +23,18 @@ public class JwtService {
     @Value("c48ccf5239ef3ff14bfaae298308f12625358206dbe0e9ddbd78d8a11b183a80")
     private String jwtSecret;
 
-    public JwtAuthenticationDto generateAuthToken(String email) {
-        JwtAuthenticationDto jwtDto = new JwtAuthenticationDto();
-        jwtDto.setToken(generateJwtToken(email));
-        jwtDto.setRefreshToken(generateRefreshToken(email));
-        return jwtDto;
+    public AuthResponse generateAuthToken(String email) {
+        AuthResponse authResponse = new AuthResponse();
+        authResponse.setToken(generateJwtToken(email));
+        authResponse.setRefreshToken(generateRefreshToken(email));
+        return authResponse;
     }
 
-    public JwtAuthenticationDto refreshBaseToken(String email, String refreshToken) {
-        JwtAuthenticationDto jwtDto = new JwtAuthenticationDto();
-        jwtDto.setToken(generateJwtToken(email));
-        jwtDto.setRefreshToken(refreshToken);
-        return jwtDto;
+    public AuthResponse refreshBaseToken(String email, String refreshToken) {
+        AuthResponse authResponse = new AuthResponse();
+        authResponse.setToken(generateJwtToken(email));
+        authResponse.setRefreshToken(refreshToken);
+        return authResponse;
     }
 
     public String getEmailFromToken(String token) {

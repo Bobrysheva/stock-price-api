@@ -1,8 +1,6 @@
 package com.bobrysheva.stock_price_api.service;
 
-import com.bobrysheva.stock_price_api.dto.JwtAuthenticationDto;
 import com.bobrysheva.stock_price_api.dto.RefreshTokenDto;
-import com.bobrysheva.stock_price_api.dto.UserCredentialsDto;
 import com.bobrysheva.stock_price_api.entity.User;
 import com.bobrysheva.stock_price_api.exceptionsHandler.UserAlreadyExistsException;
 import com.bobrysheva.stock_price_api.mapper.UserMapper;
@@ -10,9 +8,9 @@ import com.bobrysheva.stock_price_api.repository.UserRepository;
 import com.bobrysheva.stock_price_api.security.jwt.JwtService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.openapitools.model.AuthResponse;
+import org.openapitools.model.LoginRequest;
 import org.openapitools.model.RegisterRequest;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,26 +29,26 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public ResponseEntity<?> createUser(RegisterRequest registerRequest) {
+    public User createUser(RegisterRequest registerRequest) {
         log.info("Creating new User");
         Optional<User> findUserByEmail = userRepository.findUserByEmail(registerRequest.getEmail());
         if (findUserByEmail.isEmpty()) {
             User savedUser = userRepository.save(userMapper.mapToUser(registerRequest));
             log.info("User with ID: {} is created", savedUser.getId());
-            return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
+            return savedUser;
         }
         log.error("Failure to create user with duplicate email address");
         throw new UserAlreadyExistsException("User with email " + registerRequest.getEmail() + " already exists");
     }
 
     @Override
-    public JwtAuthenticationDto singIn(UserCredentialsDto userCredentialsDto) throws AuthenticationException {
-        User user = findByCredentials(userCredentialsDto);
+    public AuthResponse singIn(LoginRequest loginRequest) throws AuthenticationException {
+        User user = findByCredentials(loginRequest);
         return jwtService.generateAuthToken(user.getEmail());
     }
 
     @Override
-    public JwtAuthenticationDto refreshToken(RefreshTokenDto refreshTokenDto) throws Exception {
+    public AuthResponse refreshToken(RefreshTokenDto refreshTokenDto) throws Exception {
         String refreshToken = refreshTokenDto.getRefreshToken();
         if (refreshToken != null && jwtService.validateJwtToken(refreshToken)) {
             User user = findByEmail(jwtService.getEmailFromToken(refreshToken));
@@ -59,11 +57,11 @@ public class UserServiceImpl implements UserService {
         throw new AuthenticationException("Invalid refresh token");
     }
 
-    private User findByCredentials(UserCredentialsDto userCredentialsDto) throws AuthenticationException {
-        Optional<User> optionalUser = userRepository.findUserByEmail(userCredentialsDto.getEmail());
+    private User findByCredentials(LoginRequest loginRequest) throws AuthenticationException {
+        Optional<User> optionalUser = userRepository.findUserByEmail(loginRequest.getEmail());
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
-            if (passwordEncoder.matches(userCredentialsDto.getPassword(), user.getPassword())) {
+            if (passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
                 return user;
             }
         }

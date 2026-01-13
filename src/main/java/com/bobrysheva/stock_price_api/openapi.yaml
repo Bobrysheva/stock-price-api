@@ -17,6 +17,8 @@ components:
   schemas:
     RegisterRequest:
       type: object
+      x-class-extra-annotation: |
+        @lombok.Builder
       required:
         - login
         - email
@@ -52,6 +54,9 @@ components:
         token:
           type: string
           description: JWT token for accessing protected resources
+        refreshToken:
+          type: string
+          description: Long‑lived token used to request new access tokens after expiration
 
     SaveRequest:
       type: object
@@ -135,7 +140,7 @@ paths:
               $ref: '#/components/schemas/LoginRequest'
       responses:
         "200":
-          description: Successful login, returns JWT token
+          description: Successful login, returns JWT token, refresh token
           content:
             application/json:
               schema:
